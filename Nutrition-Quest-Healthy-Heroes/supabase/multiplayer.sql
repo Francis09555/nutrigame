@@ -20,7 +20,19 @@ create policy "authenticated can read active rooms" on public.multiplayer_rooms 
 create policy "authenticated can create own room" on public.multiplayer_rooms for insert to authenticated with check(auth.uid()=host_id);
 create policy "host can update room" on public.multiplayer_rooms for update to authenticated using(auth.uid()=host_id);
 create policy "members readable" on public.multiplayer_members for select to authenticated using(true);
-create policy "join as self" on public.multiplayer_members for insert to authenticated with check(auth.uid()=player_id and (select count(*) from public.multiplayer_members m where m.room_id=room_id and m.connected)<3);
+-- Security-definer helper avoids recursive RLS evaluation while enforcing
+-- the three-player room limit.
+create or replace function public.can_join_multiplayer_room(p_room uuid,p_player uuid)
+returns boolean language sql stable security definer set search_path=public as $$
+ select exists(select 1 from multiplayer_rooms r where r.id=p_room and r.status='lobby')
+ and (exists(select 1 from multiplayer_members m where m.room_id=p_room and m.player_id=p_player)
+      or (select count(*) from multiplayer_members m where m.room_id=p_room and m.connected)<3);
+$$;
+revoke all on function public.can_join_multiplayer_room(uuid,uuid) from public,anon;
+grant execute on function public.can_join_multiplayer_room(uuid,uuid) to authenticated;
+drop policy if exists "join as self" on public.multiplayer_members;
+create policy "join as self" on public.multiplayer_members for insert to authenticated
+with check(auth.uid()=player_id and public.can_join_multiplayer_room(room_id,player_id));
 create policy "update self" on public.multiplayer_members for update to authenticated using(auth.uid()=player_id) with check(auth.uid()=player_id);
 
 create or replace function public.leave_multiplayer_room(p_room uuid) returns void language plpgsql security definer set search_path=public as $$
