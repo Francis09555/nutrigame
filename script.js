@@ -442,9 +442,16 @@ function loop(now){
    if(survival&&G.time>=G.nextBossAt&&!G.boss){spawnBoss();G.nextBossAt+=600}
    if(survival&&G.time>=G.nextSwarmAt&&!G.swarm)startJunkSwarm();if(survival)updateJunkSwarm(dt);
    if(!survival&&G.time>=G.duration&&!G.boss)spawnBoss();spawnClock-=dt;
-   if((survival||G.time<G.duration)&&!G.swarm&&spawnClock<=0&&enemies.length<(survival?450:220)){
-    const mins=G.time/60,intensity=survival?(mins<2?.82+mins*.18:mins<10?1.18+(mins-2)*.38:4.22+Math.sqrt(mins-10)*.20):(.8+G.stage*.13+G.time/G.duration*2.2),amount=Math.min(5,1+Math.floor(intensity/2));
-    for(let i=0;i<amount&&enemies.length<(survival?450:220);i++)spawnEnemy(pick(availableEnemies()));spawnClock=Math.max(survival?.16:.13,1.05/intensity);
+   const mins=G.time/60;
+   // Late-game population expansion: after 15 minutes both the active enemy
+   // cap and each spawn batch rise substantially. Spatial collision and
+   // off-screen rendering culling keep these larger battles manageable.
+   const enemyCap=survival?(mins<15?450:Math.min(900,450+Math.floor((mins-15)*35))):220;
+   if((survival||G.time<G.duration)&&!G.swarm&&spawnClock<=0&&enemies.length<enemyCap){
+    const intensity=survival?(mins<2?.82+mins*.18:mins<10?1.18+(mins-2)*.38:mins<15?4.22+(mins-10)*.22:Math.min(9.5,6.2+Math.sqrt(mins-15)*.65)):(.8+G.stage*.13+G.time/G.duration*2.2);
+    const amount=Math.min(survival?7:5,1+Math.floor(intensity/2));
+    for(let i=0;i<amount&&enemies.length<enemyCap;i++)spawnEnemy(pick(availableEnemies()));
+    spawnClock=Math.max(survival?.14:.13,1.05/intensity);
    }
    if(G.quizDone<G.quizAt.length&&G.time>=G.quizAt[G.quizDone]){G.quizDone++;if(survival&&G.quizDone===G.quizAt.length)G.quizAt.push(G.time+240);showQuiz()}
   }
