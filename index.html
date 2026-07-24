@@ -36,6 +36,7 @@
           <button data-action="levels">🗺 Level Select</button>
           <button data-action="scores">🏆 High Scores</button>
           <button data-action="global">🌍 Global Leaderboards</button>
+          <button data-action="multiplayer">🤝 Online Co-op</button>
           <button data-action="how">❔ How To Play</button>
           <button data-action="settings">⚙ Settings</button>
           <button data-action="credits">★ Credits</button>
@@ -52,6 +53,8 @@
     <section id="scores" class="screen panel-screen"><div class="panel wide"><button class="back" data-back>← Back</button><p class="eyebrow">PERSONAL RECORDS</p><h2>🏆 Hall of Healthy Heroes</h2><div id="scoreBoards" class="score-boards"></div></div></section>
 
     <section id="global" class="screen panel-screen"><div class="panel leaderboard-panel"><button class="back" data-back>← Back</button><p class="eyebrow">WORLDWIDE HEALTHY HEROES</p><h2>🌍 Global Leaderboards</h2><div class="leader-toolbar"><div id="leaderTabs"><button data-category="score" class="active">Endless Score</button><button data-category="survival">Longest Survival</button><button data-category="level">Highest Level</button><button data-category="bosses">Bosses Defeated</button></div><div class="leader-search"><input id="leaderSearch" placeholder="Search username"><button id="leaderSearchBtn">Search</button><button id="leaderRefresh">↻ Refresh</button></div></div><div id="leaderStatus" class="leader-status">Connect a Supabase project to enable worldwide rankings.</div><div id="leaderPodium" class="leader-podium"></div><div id="leaderList" class="leader-list"></div><div id="myGlobalRank"></div><small id="leaderUpdated"></small></div></section>
+
+    <section id="multiplayer" class="screen panel-screen"><div class="panel multiplayer-panel"><button class="back" data-back>← Back</button><p class="eyebrow">SUPABASE REALTIME</p><h2>🤝 Online Co-op</h2><div id="mpConnection" class="mp-connection offline">● Offline</div><div class="mp-actions"><button id="mpCreate" class="primary">Create Room</button><div class="mp-join"><input id="mpRoomInput" maxlength="6" placeholder="ROOM CODE"><button id="mpJoin">Join Room</button></div></div><div id="mpLobby" class="mp-lobby hidden"><div class="room-code"><small>ROOM CODE</small><b id="mpRoomCode">------</b><button id="mpCopy">Copy Code</button></div><div id="mpPlayerList" class="mp-player-list"></div><div class="mp-lobby-actions"><button id="mpReady">Not Ready</button><button id="mpStart" class="primary hidden">Start Game</button><button id="mpLeave" class="danger">Leave Room</button></div><p id="mpLobbyMessage">Waiting for players…</p></div><p class="hint">2–3 players. The host controls enemies, bosses, loot and the world simulation. Each player controls their own hero and upgrades independently.</p></div></section>
 
     <section id="levels" class="screen panel-screen">
       <div class="panel wide"><button class="back" data-back>← Back</button><p class="eyebrow">CHOOSE YOUR MISSION</p><h2>Level Select</h2><div id="levelGrid" class="level-grid"></div></div>
@@ -101,6 +104,7 @@
     <div id="toast"></div>
   </main>
   <script src="leaderboard-config.js"></script>
+  <script src="multiplayer.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

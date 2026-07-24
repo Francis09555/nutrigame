@@ -7,6 +7,7 @@ The game remains fully playable offline. Global rankings activate after this bac
 1. Create a Supabase project.
 2. In **Authentication → Providers**, enable **Anonymous Sign-Ins**.
 3. Open the SQL Editor and run `schema.sql`.
+4. Run `multiplayer.sql` to add 2–3 player rooms, policies, host migration, cleanup, and Realtime publication.
 4. Install the Supabase CLI and log in on a development machine (this is only for backend deployment; the game itself still uses no npm or libraries).
 5. Link the folder to your project and deploy:
 
