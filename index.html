@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#173c38">
+  <title>Nutrition Quest: Healthy Heroes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="Nutrition Quest game canvas"></canvas>
+
+    <section id="register" class="screen panel-screen">
+      <div class="panel small register-panel">
+        <div class="logo-mark">🥕</div><p class="eyebrow">WELCOME, HEALTHY HERO</p>
+        <h2>Create Your Player</h2>
+        <label>Player Name <input id="registerName" type="text" maxlength="20" placeholder="Enter your name" autocomplete="nickname"></label>
+        <p class="avatar-title">Choose an Avatar <small>(optional)</small></p>
+        <div id="avatarChoices" class="avatar-choices">
+          <button class="avatar-choice selected" data-avatar="🦸">🦸</button><button class="avatar-choice" data-avatar="🧑‍🌾">🧑‍🌾</button><button class="avatar-choice" data-avatar="🥷">🥷</button><button class="avatar-choice" data-avatar="🧑‍⚕️">🧑‍⚕️</button>
+        </div>
+        <p id="registerError" class="form-error"></p><button id="registerBtn" class="primary">Start My Quest</button>
+      </div>
+    </section>
+
+    <section id="menu" class="screen">
+      <div class="menu-card">
+        <div class="logo-mark">🥕</div>
+        <p class="eyebrow">NUTRITION MONTH ADVENTURE</p>
+        <h1>Nutrition Quest</h1>
+        <h2>Healthy Heroes</h2>
+        <p class="tagline">Rise healthy. Fight junk. Save the city.</p>
+        <nav class="menu-buttons">
+          <button data-action="modes" class="primary">▶ Play</button>
+          <button data-action="levels">🗺 Level Select</button>
+          <button data-action="scores">🏆 High Scores</button>
+          <button data-action="global">🌍 Global Leaderboards</button>
+          <button data-action="multiplayer">🤝 Online Co-op</button>
+          <button data-action="how">❔ How To Play</button>
+          <button data-action="settings">⚙ Settings</button>
+          <button data-action="credits">★ Credits</button>
+          <button data-action="exit">↪ Exit</button>
+        </nav>
+        <div id="saveSummary" class="save-summary"></div>
+        <div class="mini-credits">Created by Francis Don Rellon<br>Development Assistance: <a href="http://Arena.ai" target="_blank">Arena.ai</a> and ChatGPT<br>Inspired by <a href="http://Survivor.io" target="_blank">Survivor.io</a></div>
+      </div>
+      <div class="menu-art" aria-hidden="true"><div class="hero-orb">🦸</div><div class="float-food f1">🍎</div><div class="float-food f2">🥦</div><div class="float-food f3">🥛</div></div>
+    </section>
+
+    <section id="modes" class="screen panel-screen"><div class="panel wide"><button class="back" data-back>← Back</button><p class="eyebrow">CHOOSE HOW TO PLAY</p><h2>Game Mode</h2><div class="mode-grid"><button id="classicMode" class="mode-card"><span>🗺️</span><b>Classic Mode</b><small>Survive the countdown, defeat the stage boss, and unlock the city.</small></button><button id="endlessMode" class="mode-card endless"><span>♾️</span><b>Endless Mode</b><small>No time limit. Boss every ten minutes, with random junk-food swarms. Survive as long as you can.</small></button></div></div></section>
+
+    <section id="scores" class="screen panel-screen"><div class="panel wide"><button class="back" data-back>← Back</button><p class="eyebrow">PERSONAL RECORDS</p><h2>🏆 Hall of Healthy Heroes</h2><div id="scoreBoards" class="score-boards"></div></div></section>
+
+    <section id="global" class="screen panel-screen"><div class="panel leaderboard-panel"><button class="back" data-back>← Back</button><p class="eyebrow">WORLDWIDE HEALTHY HEROES</p><h2>🌍 Global Leaderboards</h2><div class="leader-toolbar"><div id="leaderTabs"><button data-category="score" class="active">Endless Score</button><button data-category="survival">Longest Survival</button><button data-category="level">Highest Level</button><button data-category="bosses">Bosses Defeated</button></div><div class="leader-search"><input id="leaderSearch" placeholder="Search username"><button id="leaderSearchBtn">Search</button><button id="leaderRefresh">↻ Refresh</button></div></div><div id="leaderStatus" class="leader-status">Connect a Supabase project to enable worldwide rankings.</div><div id="leaderPodium" class="leader-podium"></div><div id="leaderList" class="leader-list"></div><div id="myGlobalRank"></div><small id="leaderUpdated"></small></div></section>
+
+    <section id="multiplayer" class="screen panel-screen"><div class="panel multiplayer-panel"><button class="back" data-back>← Back</button><p class="eyebrow">SUPABASE REALTIME</p><h2>🤝 Online Co-op</h2><div id="mpConnection" class="mp-connection offline">● Offline</div><div class="mp-actions"><button id="mpCreate" class="primary">Create Room</button><div class="mp-join"><input id="mpRoomInput" maxlength="6" placeholder="ROOM CODE"><button id="mpJoin">Join Room</button></div></div><div id="mpLobby" class="mp-lobby hidden"><div class="room-code"><small>ROOM CODE</small><b id="mpRoomCode">------</b><button id="mpCopy">Copy Code</button></div><div id="mpPlayerList" class="mp-player-list"></div><div class="mp-lobby-actions"><button id="mpReady">Not Ready</button><button id="mpStart" class="primary hidden">Start Game</button><button id="mpLeave" class="danger">Leave Room</button></div><p id="mpLobbyMessage">Waiting for players…</p></div><p class="hint">2–3 players. The host controls enemies, bosses, loot and the world simulation. Each player controls their own hero and upgrades independently.</p></div></section>
+
+    <section id="levels" class="screen panel-screen">
+      <div class="panel wide"><button class="back" data-back>← Back</button><p class="eyebrow">CHOOSE YOUR MISSION</p><h2>Level Select</h2><div id="levelGrid" class="level-grid"></div></div>
+    </section>
+
+    <section id="how" class="screen panel-screen">
+      <div class="panel"><button class="back" data-back>← Back</button><h2>How To Play</h2>
+        <div class="help-grid">
+          <article><b>⌨ Move</b><p>Use WASD or Arrow Keys. Your hero attacks automatically.</p></article>
+          <article><b>💨 Dash</b><p>Press Space to dash with brief invulnerability.</p></article>
+          <article><b>⬆ Grow</b><p>Collect green XP orbs. Pick one of three upgrades each level.</p></article>
+          <article><b>👑 Win</b><p>Survive the timer, then defeat the stage boss.</p></article>
+          <article><b>🧠 Learn</b><p>Answer nutrition quizzes for healing, XP and score.</p></article>
+          <article><b>⏸ Pause</b><p>Press Escape or P. Touch controls appear on mobile.</p></article>
+        </div><p class="hint">Tip: evolved weapons require a max-level weapon and its matching passive.</p>
+      </div>
+    </section>
+
+    <section id="settings" class="screen panel-screen">
+      <div class="panel small"><button class="back" data-back>← Back</button><h2>Settings</h2>
+        <label>Player Name <input id="settingsName" type="text" maxlength="20"></label>
+        <button id="saveName">Save Player Name</button>
+        <button id="changePlayer" class="change-player">👤 Change Player / New User</button>
+        <label>Music <input id="musicToggle" type="checkbox"></label>
+        <label>Sound Effects <input id="sfxToggle" type="checkbox"></label>
+        <label>Screen Shake <input id="shakeToggle" type="checkbox"></label>
+        <label>Master Volume <input id="volume" type="range" min="0" max="1" step="0.05"></label>
+        <button id="resetSave" class="danger">Reset Save Data</button>
+      </div>
+    </section>
+
+    <section id="credits" class="screen panel-screen"><div class="panel small credits-panel"><button class="back" data-back>← Back</button><div class="credits-scroll"><p class="eyebrow">NUTRITION QUEST</p><h2>Healthy Heroes</h2><h3>Created by</h3><p class="credit-name">Francis Don Rellon</p><h3>Development Assistance</h3><p><a href="http://Arena.ai" target="_blank">Arena.ai</a><br>ChatGPT</p><h3>Inspired by</h3><p><a href="http://Survivor.io" target="_blank">Survivor.io</a></p><hr><p>An original educational survival adventure created with vanilla HTML, CSS, JavaScript and Canvas.</p><p>Graphics and sound are generated in real time.</p><p class="hint">Eat a varied diet, drink water, and stay active!</p></div></div></section>
+
+    <section id="hud" class="hidden">
+      <div class="hud-top"><div><div id="hudPlayer" class="hud-player"></div><div class="health-shell"><span>❤</span><div class="bar"><i id="hpBar"></i><em id="hpText"></em></div></div></div><div class="stage-info"><b id="stageText"></b><span id="timerText"></span><small id="bossWarning"></small></div><div class="score-box">SCORE <b id="scoreText">0</b><small id="endlessStats"></small></div></div>
+      <div id="bossHud" class="boss-hud hidden"><span id="bossName"></span><div class="bar boss"><i id="bossBar"></i></div></div>
+      <div class="hud-bottom"><div class="level-badge">LV <b id="playerLevel">1</b></div><div class="xp-wrap"><span>XP</span><div class="bar"><i id="xpBar"></i></div></div><div id="dashHud" class="dash-hud">SPACE <i></i></div><button id="pauseBtn">Ⅱ</button></div>
+      <div id="weaponTray"></div>
+    </section>
+
+    <section id="choiceModal" class="overlay hidden"><div class="modal"><p class="eyebrow">LEVEL UP!</p><h2>Choose an Upgrade</h2><div id="choices" class="choices"></div></div></section>
+    <section id="quizModal" class="overlay hidden"><div class="modal quiz"><p class="eyebrow">NUTRITION CHALLENGE</p><h2 id="quizQuestion"></h2><div id="quizAnswers" class="quiz-answers"></div><p id="quizFeedback"></p></div></section>
+    <section id="pauseModal" class="overlay hidden"><div class="modal small"><h2>Game Paused</h2><button id="resumeBtn" class="primary">Resume</button><button id="quitBtn">Quit to Menu</button></div></section>
+    <section id="resultModal" class="overlay hidden"><div class="modal result"><div id="resultIcon">🏆</div><h2 id="resultTitle"></h2><p id="resultBody"></p><div id="resultStats"></div><button id="continueBtn" class="primary">Continue</button><button id="resultMenuBtn">Main Menu</button><button id="resultScoresBtn">High Scores</button></div></section>
+
+    <div id="touchControls" class="hidden"><div id="joystick"><i></i></div><button id="dashTouch">DASH</button></div>
+    <div id="toast"></div>
+  </main>
+  <script src="leaderboard-config.js"></script>
+  <script src="multiplayer-v4.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

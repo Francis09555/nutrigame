@@ -1,0 +1,4 @@
+import { cors,json,context } from '../_shared/common.ts';
+Deno.serve(async req=>{
+ if(req.method==='OPTIONS')return new Response('ok',{headers:cors});
+ try{const {user,admin}=await context(req),b=await req.json(),name=String(b.playerName||'').trim(),avatar=String(b.avatar||'🦸');if(!name||name.length>20||avatar.length>16)return json({error:'Invalid profile'},400);const {data,error}=await admin.from('profiles').upsert({id:user.id,player_name:name,avatar},{onConflict:'id'}).select('id,player_name,avatar,registration_date,total_games,total_wins,total_play_time,total_kills,best_endless_score,best_survival,highest_level,total_bosses,favorite_weapon,evolutions_unlocked').single();if(error)return json({error:error.code==='23505'?'That player name is already registered':error.message},409);return json({profile:data})}catch(e){return json({error:e.message||'Profile sync failed'},e.message==='Unauthorized'?401:400)}});
