@@ -502,36 +502,34 @@ function updateParticles(dt){for(let p of particles){p.life-=dt;p.x+=p.vx*dt;p.y
 
 // ---------- Main loop and HUD ----------
 let last=performance.now(),spawnClock=0;
-function loop(now){
- if(!G.running)return;let dt=Math.min(.033,(now-last)/1000);last=now;if(typeof DEV!=='undefined'){dt*=DEV.gameSpeed;DEV.frame(dt)}
- if(!G.paused){
-  G.time+=dt;const survival=isSurvivalMode(),mpClient=G.mode==='multiplayer'&&!MP.isHost;
-  if(G.mode==='endless'&&G.time>=Online.checkpointAt)Online.checkpoint();
-  if(survival&&G.nextBossAt-G.time<=60&&G.nextBossAt-G.time>59.9&&G.lastWarnBoss!==G.nextBossAt){G.lastWarnBoss=G.nextBossAt;tone(120,.5,'sawtooth',.13,280);toast('⚠ Boss Approaching in 60 seconds!')}
-  if(!mpClient){
-   if(survival&&G.time>=G.nextBossAt&&!G.boss){spawnBoss();G.nextBossAt+=600}
-   if(survival&&G.time>=G.nextSwarmAt&&!G.swarm)startJunkSwarm();if(survival)updateJunkSwarm(dt);
-   if(!survival&&G.time>=G.duration&&!G.boss)spawnBoss();spawnClock-=dt;
-   const mins=G.time/60;
-   // Late-game population expansion: after 15 minutes both the active enemy
-   // cap and each spawn batch rise substantially. Spatial collision and
-   // off-screen rendering culling keep these larger battles manageable.
-   const buildPressure=evolutionPressure(),enemyCap=survival?(mins<15?450+buildPressure.cap:Math.min(950,450+Math.floor((mins-15)*35)+buildPressure.cap)):220;
-   if((survival||G.time<G.duration)&&!G.swarm&&spawnClock<=0&&enemies.length<enemyCap){
-    const intensity=(survival?(mins<2?.82+mins*.18:mins<10?1.18+(mins-2)*.38:mins<15?4.22+(mins-10)*.22:Math.min(9.5,6.2+Math.sqrt(mins-15)*.65)):(.8+G.stage*.13+G.time/G.duration*2.2))+buildPressure.spawn;
-    const amount=Math.min(survival?7:5,1+Math.floor(intensity/2));
-    for(let i=0;i<amount&&enemies.length<enemyCap;i++)spawnEnemy(pick(availableEnemies()));
-    spawnClock=Math.max(survival?.14:.13,1.05/intensity);
-   }
-   if(G.quizDone<G.quizAt.length&&G.time>=G.quizAt[G.quizDone]){G.quizDone++;if(survival&&G.quizDone===G.quizAt.length)G.quizAt.push(G.time+240);showQuiz()}
-  }
-  G.evolution=Math.max(0,(G.evolution||0)-dt);G.bossEntrance=Math.max(0,(G.bossEntrance||0)-dt);updatePlayer(dt);
-  if(!mpClient){updateWeapons(dt);if(typeof Starter!=='undefined')Starter.update(dt);updateUltimates(dt);rebuildSpatialGrid();updateProjectiles(dt);updateEnemies(dt);updateEnemyShots(dt)}else{updateParticles(dt)}
-  if(!mpClient)updateParticles(dt);if(G.mode==='multiplayer')MP.tick(dt);
-  G.cam.x+=(player.x-G.cam.x)*Math.min(1,dt*5);G.cam.y+=(player.y-G.cam.y)*Math.min(1,dt*5);updateHud();
+function stepSimulation(dt,background=false){
+ if(!G.running||G.paused)return;G.time+=dt;const survival=isSurvivalMode(),mpClient=G.mode==='multiplayer'&&!MP.isHost;
+ if(G.mode==='endless'&&G.time>=Online.checkpointAt)Online.checkpoint();
+ if(!background&&survival&&G.nextBossAt-G.time<=60&&G.nextBossAt-G.time>59.9&&G.lastWarnBoss!==G.nextBossAt){G.lastWarnBoss=G.nextBossAt;tone(120,.5,'sawtooth',.13,280);toast('⚠ Boss Approaching in 60 seconds!')}
+ if(!mpClient){
+  if(survival&&G.time>=G.nextBossAt&&!G.boss){spawnBoss();G.nextBossAt+=600}
+  if(survival&&G.time>=G.nextSwarmAt&&!G.swarm)startJunkSwarm();if(survival)updateJunkSwarm(dt);
+  if(!survival&&G.time>=G.duration&&!G.boss)spawnBoss();spawnClock-=dt;const mins=G.time/60,buildPressure=evolutionPressure(),enemyCap=survival?(mins<15?450+buildPressure.cap:Math.min(950,450+Math.floor((mins-15)*35)+buildPressure.cap)):220;
+  if((survival||G.time<G.duration)&&!G.swarm&&spawnClock<=0&&enemies.length<enemyCap){const intensity=(survival?(mins<2?.82+mins*.18:mins<10?1.18+(mins-2)*.38:mins<15?4.22+(mins-10)*.22:Math.min(9.5,6.2+Math.sqrt(mins-15)*.65)):(.8+G.stage*.13+G.time/G.duration*2.2))+buildPressure.spawn,amount=Math.min(survival?7:5,1+Math.floor(intensity/2));for(let i=0;i<amount&&enemies.length<enemyCap;i++)spawnEnemy(pick(availableEnemies()));spawnClock=Math.max(survival?.14:.13,1.05/intensity)}
+  if(G.quizDone<G.quizAt.length&&G.time>=G.quizAt[G.quizDone]){G.quizDone++;if(survival&&G.quizDone===G.quizAt.length)G.quizAt.push(G.time+240);if(background)G.pendingBackgroundQuiz=true;else showQuiz()}
  }
- draw();requestAnimationFrame(loop);
+ G.evolution=Math.max(0,(G.evolution||0)-dt);G.bossEntrance=Math.max(0,(G.bossEntrance||0)-dt);updatePlayer(dt);
+ if(!mpClient){updateWeapons(dt);if(typeof Starter!=='undefined')Starter.update(dt);updateUltimates(dt);rebuildSpatialGrid();updateProjectiles(dt);updateEnemies(dt);updateEnemyShots(dt)}else updateParticles(dt);
+ if(!mpClient)updateParticles(dt);if(G.mode==='multiplayer')MP.tick(dt);G.cam.x+=(player.x-G.cam.x)*Math.min(1,dt*5);G.cam.y+=(player.y-G.cam.y)*Math.min(1,dt*5);if(!background)updateHud();
 }
+function loop(now){
+ if(!G.running)return;let dt=Math.min(.033,(now-last)/1000);last=now;if(document.hidden){requestAnimationFrame(loop);return}if(typeof DEV!=='undefined'){dt*=DEV.gameSpeed;DEV.frame(dt)}stepSimulation(dt,false);draw();requestAnimationFrame(loop);
+}
+function simulateBackgroundElapsed(seconds){
+ if(!G.running||G.paused||seconds<=0)return;const exact=Math.min(seconds,300),step=exact>60?.2:.1,steps=Math.ceil(exact/step),dt=exact/Math.max(1,steps);for(let i=0;i<steps&&G.running&&!G.paused;i++)stepSimulation(dt,true);
+ // Very long browser suspension is fast-forwarded after five minutes of exact
+ // combat simulation to prevent a return-tab CPU freeze.
+ if(seconds>exact&&G.running&&!G.paused){const extra=seconds-exact;G.time+=extra;player.dashCd=Math.max(0,player.dashCd-extra);player.invuln=Math.max(0,player.invuln-extra);for(const w of Object.values(player.weapons))w.cd=Math.max(0,w.cd-extra);if(player.starter)player.starter.cd=Math.max(0,player.starter.cd-extra)}
+}
+let backgroundWorker=null,backgroundWall=Date.now();
+try{backgroundWorker=new Worker('background-worker.js?v=20260725-1');backgroundWorker.onmessage=e=>{const now=e.data?.now||Date.now();if(document.hidden&&G.running&&!G.paused){simulateBackgroundElapsed(Math.max(0,(now-backgroundWall)/1000));backgroundWall=now}backgroundWorker.postMessage('ack')}}catch(e){console.warn('Background worker unavailable',e)}
+addEventListener('visibilitychange',()=>{const now=Date.now();if(document.hidden){backgroundWall=now;backgroundWorker?.postMessage('start')}else{if(G.running&&!G.paused)simulateBackgroundElapsed(Math.max(0,(now-backgroundWall)/1000));backgroundWall=now;backgroundWorker?.postMessage('stop');last=performance.now();if(G.pendingBackgroundQuiz&&G.running&&!G.paused){G.pendingBackgroundQuiz=false;showQuiz()}if(G.running)updateHud()}});
+
 function updateHud(){
  $('#hpBar').style.width=clamp(player.hp/player.maxHp*100,0,100)+'%';$('#hpText').textContent=`${Math.ceil(player.hp)} / ${player.maxHp}`;$('#playerLevel').textContent=player.level;$('#xpBar').style.width=player.xp/player.nextXp*100+'%';$('#xpText').textContent=`${Math.floor(player.xp)} / ${player.nextXp}`;
  const endless=isSurvivalMode();
