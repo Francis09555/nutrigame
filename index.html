@@ -82,6 +82,10 @@
         <label>Sound Effects <input id="sfxToggle" type="checkbox"></label>
         <label>Screen Shake <input id="shakeToggle" type="checkbox"></label>
         <label>Master Volume <input id="volume" type="range" min="0" max="1" step="0.05"></label>
+        <h3>Mobile Joystick</h3>
+        <label>Joystick Size <input id="joystickSize" type="range" min="80" max="180" step="5"></label>
+        <label>Joystick Opacity <input id="joystickOpacity" type="range" min="0.2" max="1" step="0.05"></label>
+        <button id="adjustJoystick">Drag Joystick Position</button><button id="resetJoystick">Reset Joystick Position</button>
         <button id="resetSave" class="danger">Reset Save Data</button>
       </div>
     </section>
@@ -89,14 +93,14 @@
     <section id="credits" class="screen panel-screen"><div class="panel small credits-panel"><button class="back" data-back>← Back</button><div class="credits-scroll"><p class="eyebrow">NUTRITION QUEST</p><h2>Healthy Heroes</h2><h3>Created by</h3><p class="credit-name">Francis Don Rellon</p><h3>Development Assistance</h3><p><a href="http://Arena.ai" target="_blank">Arena.ai</a><br>ChatGPT</p><h3>Inspired by</h3><p><a href="http://Survivor.io" target="_blank">Survivor.io</a></p><hr><p>An original educational survival adventure created with vanilla HTML, CSS, JavaScript and Canvas.</p><p>Graphics and sound are generated in real time.</p><p class="hint">Eat a varied diet, drink water, and stay active!</p></div></div></section>
 
     <section id="hud" class="hidden">
-      <div class="hud-top"><div><div id="hudPlayer" class="hud-player"></div><div class="health-shell"><span>❤</span><div class="bar"><i id="hpBar"></i><em id="hpText"></em></div></div></div><div class="stage-info"><b id="stageText"></b><span id="timerText"></span><small id="bossWarning"></small></div><div class="score-box">SCORE <b id="scoreText">0</b><small id="endlessStats"></small></div></div>
+      <div class="hud-top"><div class="player-cluster"><div id="hudPlayer" class="hud-player"></div><div class="health-shell"><span>❤</span><div class="bar"><i id="hpBar"></i><em id="hpText"></em></div></div><div class="top-progress"><div class="level-badge">LV <b id="playerLevel">1</b></div><div class="xp-wrap"><span>XP <b id="xpText">0 / 1</b></span><div class="bar"><i id="xpBar"></i></div></div></div></div><div class="stage-info"><b id="stageText"></b><span id="timerText"></span><small id="bossWarning"></small></div><div class="score-box">SCORE <b id="scoreText">0</b><small id="endlessStats"></small></div></div>
       <div id="bossHud" class="boss-hud hidden"><span id="bossName"></span><div class="bar boss"><i id="bossBar"></i></div></div>
-      <div class="hud-bottom"><div class="level-badge">LV <b id="playerLevel">1</b></div><div class="xp-wrap"><span>XP</span><div class="bar"><i id="xpBar"></i></div></div><div id="dashHud" class="dash-hud">SPACE <i></i></div><button id="pauseBtn">Ⅱ</button></div>
-      <div id="weaponTray"></div>
+      <div id="weaponTray" aria-label="Equipped weapons"></div>
+      <div class="hud-bottom"><div id="dashHud" class="dash-hud">SPACE <i></i></div><button id="pauseBtn">Ⅱ</button></div>
     </section>
 
     <section id="choiceModal" class="overlay hidden"><div class="modal"><p class="eyebrow">LEVEL UP!</p><h2>Choose an Upgrade</h2><div id="choices" class="choices"></div></div></section>
-    <section id="quizModal" class="overlay hidden"><div class="modal quiz"><p class="eyebrow">NUTRITION CHALLENGE</p><h2 id="quizQuestion"></h2><div id="quizAnswers" class="quiz-answers"></div><p id="quizFeedback"></p></div></section>
+    <section id="quizModal" class="overlay hidden"><div class="modal quiz"><div class="quiz-timer"><b id="quizTimerText">5.0</b><i id="quizTimerBar"></i></div><p class="eyebrow">NUTRITION CHALLENGE</p><h2 id="quizQuestion"></h2><div id="quizAnswers" class="quiz-answers"></div><p id="quizFeedback"></p></div></section>
     <section id="pauseModal" class="overlay hidden"><div class="modal small"><h2>Game Paused</h2><button id="resumeBtn" class="primary">Resume</button><button id="quitBtn">Quit to Menu</button></div></section>
     <section id="resultModal" class="overlay hidden"><div class="modal result"><div id="resultIcon">🏆</div><h2 id="resultTitle"></h2><p id="resultBody"></p><div id="resultStats"></div><button id="continueBtn" class="primary">Continue</button><button id="resultMenuBtn">Main Menu</button><button id="resultScoresBtn">High Scores</button></div></section>
 
@@ -105,6 +109,7 @@
   </main>
   <script src="leaderboard-config.js"></script>
   <script src="multiplayer-v4.js"></script>
+  <script src="quiz-questions.js"></script>
   <script src="script.js"></script>
   <script src="developer-admin.js"></script>
 </body>
