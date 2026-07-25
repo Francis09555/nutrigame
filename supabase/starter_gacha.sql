@@ -40,3 +40,31 @@ drop policy if exists "own starter inventory read" on public.starter_inventory;c
 drop policy if exists "own gacha state read" on public.gacha_state;create policy "own gacha state read" on public.gacha_state for select to authenticated using(auth.uid()=user_id);
 -- All writes use service-role Edge Functions. No browser write policies exist.
 notify pgrst,'reload schema';
+
+-- Prevent authenticated browsers from changing protected progression columns
+-- through the otherwise legitimate own-profile update policy.
+create or replace function public.protect_progression_columns()
+returns trigger language plpgsql security definer set search_path=public as $$
+begin
+ if auth.role()='authenticated' and (
+   new.battle_points is distinct from old.battle_points or
+   new.selected_starter is distinct from old.selected_starter or
+   new.free_starter_spin is distinct from old.free_starter_spin or
+   new.banned is distinct from old.banned
+ ) then raise exception 'Permanent progression must be changed by a verified server function';
+ end if;
+ return new;
+end $$;
+drop trigger if exists protect_progression_columns_trigger on public.profiles;
+create trigger protect_progression_columns_trigger before update on public.profiles
+for each row execute function public.protect_progression_columns();
+
+-- A short atomic lock rejects simultaneous duplicate spin requests.
+create table if not exists public.gacha_spin_locks(
+ user_id uuid not null references auth.users(id) on delete cascade,
+ time_bucket bigint not null,
+ created_at timestamptz not null default now(),
+ primary key(user_id,time_bucket)
+);
+alter table public.gacha_spin_locks enable row level security;
+-- No client policies; only service-role functions can insert.
